@@ -1,0 +1,184 @@
+﻿<md-card class="custom-color-card" layout-padding>
+    <div class="md-no-sticky addBuyerPS md-subheader" layout="row" layout-xs="column" layout-align="start">
+        <div class="md-subheader-inner" layout="row" layout-xs="column" flex layout-align="start center">
+            <span class="md-subheader-content">
+                <span class="ng-scope">Search by Lead Id or Buyer Ref Id</span>
+            </span>
+        </div>
+        <!--<div class="uplodeXML" flex-gt-md="20" layout-align="end center">
+            <p class="xmluplode"><i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;  Upload CSV File</p>
+        </div>-->
+
+        <!--<ng-csv-import content="suppression.csv.content"
+                       header="suppression.csv.header"
+                       separator="suppression.csv.separator"
+                       result="suppression.csv.result"
+                       accept="suppression.csv.accept"
+                       filename="suppression.csv.filename" class="new_addbuyer"></ng-csv-import>
+        <i class="fa fa-paper-plane Send_eXL" aria-hidden="true" aria-label="send" ng-click="suppression.sendList()" ng-disabled="suppression.csv.result.length==0"></i>-->
+
+    </div>
+    <form name="returnLead.searchForm">
+        <md-container class="lessPadding">
+
+            <div layout="row" layout-xs="column">
+                <md-input-container flex class="returnbuyer">
+                    <label>Lead Id (s)</label>
+                    <input ng-pattern="returnLead.regexLeadId" name="leadIds" ng-model="returnLead.leadFilter.leadIds">
+                    <div ng-messages="returnLead.searchForm.leadIds.$error">
+                        <div ng-message="pattern">Invalid</div>
+                    </div>
+                    <md-tooltip md-direction="top">
+                        Enter Lead ids with separeted by a space
+                    </md-tooltip>
+                </md-input-container>
+
+                <md-input-container flex class="returnbuyer">
+                    <label>Buyer Ref Id(s)</label>
+                    <input ng-pattern="returnLead.regexRefId" name="refIds" ng-model="returnLead.leadFilter.buyerRefIds">
+                    <div ng-messages="returnLead.searchForm.refIds.$error">
+                        <div ng-message="pattern">Invalid</div>
+                    </div>
+                    <md-tooltip md-direction="top">
+                        Enter Buyer Ref Ids with separeted by a space
+                    </md-tooltip>
+                </md-input-container>
+                <md-input-container layout-xs="row" layout-align-xs="center center">
+                    <md-tooltip md-direction="top">
+                        Advance Search
+                    </md-tooltip>
+                    <i class="fa returnSearch" ng-class="returnLead.advanceSearchToggle ? 'fa-minus-square-o' : 'fa-plus-square-o'" style="outline:none;" aria-hidden="true" ng-click="returnLead.advanceSearchToggle = !returnLead.advanceSearchToggle"></i>
+                </md-input-container>
+
+            </div>
+
+            <div ng-show="returnLead.advanceSearchToggle" class="animate slide-down">
+                <div layout="row" layout-xs="column">
+                    <md-input-container md-no-float flex class="returnbuyer">
+                        <label>Date From</label>
+                        <input mdc-datetime-picker="" format="YYYY-MM-DD" max-date="returnLead.leadFilter.endDate" date="true" time="false" type='text' ng-model="returnLead.leadFilter.startDate" />
+                    </md-input-container>
+
+                    <md-input-container md-no-float flex class="returnbuyer">
+                        <label>Date To</label>
+                        <input mdc-datetime-picker="" format="YYYY-MM-DD" min-date="returnLead.leadFilter.startDate" date="true" time="false" type='text' ng-model="returnLead.leadFilter.endDate" />
+                    </md-input-container>
+                </div>
+                <div layout="row" layout-xs="column">
+                    <md-input-container flex class="returnbuyer">
+                        <label>Buyer</label>
+                        <md-select ng-model="returnLead.leadFilter.buyerId" ng-change="returnLead.getBuyerProductsWithParentChild(returnLead.leadFilter.buyerId)">
+                            <md-option value="0">All</md-option>
+                            <md-option ng-repeat="buyer in returnLead.buyers | filter:{State : 1} | orderBy:'BuyerName'" ng-value="buyer.ID">{{buyer.BuyerName}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container flex class="returnbuyer">
+                        <label>Product</label>
+                        <md-select ng-model="returnLead.leadFilter.productName">
+                            <md-option>All</md-option>                            
+                            <md-option ng-value="prod.ProductName" ng-repeat="prod in returnLead.products | orderBy:'ProductName'">{{prod.ProductName}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+
+                <div layout="row" layout-xs="column">
+                    <md-input-container flex class="returnbuyer" ng-if="isOrganization('Pioneer Web')">
+                        <label>Source</label>
+                        <md-select ng-model="returnLead.leadFilter.source">
+                            <md-option ng-repeat="source in returnLead.sources" ng-value="source.value">{{source.name}}</md-option>
+                        </md-select>
+                    </md-input-container>
+
+                    <md-input-container flex class="returnbuyer">
+                        <label>Return</label>
+                        <md-select ng-model="returnLead.leadFilter.returned">
+                            <md-option ng-value=null>All</md-option>
+                            <md-option ng-value="true">Returned</md-option>
+                            <md-option ng-value="false">Not Returned</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+            </div>
+        </md-container>   
+        <div class="returnButtonDiv" layout="row" layout-xs="column" layout-align="center">
+            <md-button class="savebuyer" aria-label="search lead" type="submit" ng-click="returnLead.search()">
+                <label style="text-transform:initial;"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> &nbsp; Go</label>
+            </md-button>
+            <md-button class="resetBuyer" aria-label="Reset" type="reset" ng-click="returnLead.reset()">
+                <label style="text-transform:initial;"><i class="fa fa-repeat" aria-hidden="true"></i> &nbsp; Reset</label>
+            </md-button>
+        </div>
+    </form>
+</md-card>
+<md-card class="custom-color-card" ng-show="returnLead.leadCount">
+    <md-container class="totalLead" layout="row" layout-padding layout-align="start center">
+        <md-checkbox aria-label="Select All"
+                     ng-true-value="true"
+                     ng-false-value="false"
+                     class="md-hue-3"
+                     ng-checked="returnLead.isCheckedAll()"
+                     ng-model="returnLead.selectAll"
+                     md-indeterminate="returnLead.isIndeterminate()"
+                     ng-click="returnLead.toggleSelectAll($event,returnLead.selectAll)">
+            <span ng-if="returnLead.isCheckedAll()">Un-</span>Select All
+        </md-checkbox>
+        <h3 layout-padding>
+            <i class="fa fa-users" aria-hidden="true" title="Total Lead"></i>
+            <span class="lead_count">
+                {{returnLead.leadCount}}
+            </span>
+        </h3>
+    </md-container>
+    <!--<div ng-show="returnLead.selectedLeads.length">
+        <span>{{returnLead.selectedLeads.length}} {{returnLead.selectedLeads.length > 1 ? 'items' : 'item'}} selected</span>
+    </div>-->
+    <md-table-container>
+        <table md-table>
+            <thead fix-head md-head md-order="returnLead.query['$orderby']" md-on-reorder="returnLead.reOrder">
+                <tr md-row>
+                    <th md-column md-order-by="Returned"><span>Returned</span></th>            
+                    <th md-column md-order-by="LeadId"><span>LeadId</span></th>
+                    <th md-column md-order-by="GeneratedDateTime" hide-gt-xs show-gt-md><span>Generated Time</span></th>
+                    <th md-column md-order-by="TransferDateTime"><span>Transfer Time</span></th>
+                    <th md-column md-order-by="Source" ng-if="isOrganization('Pioneer Web')"><span>Source</span></th>
+                    <th md-column md-order-by="BuyerName"><span>BuyerName</span></th>
+                    <th md-column md-order-by="ProductName"><span>ProductName</span></th>
+                    <th md-column md-order-by="BuyerRefId"><span>Buyer Referece Id</span></th>
+                    <th md-column md-order-by="Price"><span>&pound Revenue</span></th>
+                    <th md-column md-order-by="ActualPrice"><span>ActualPrice</span></th>
+                    <th md-column md-order-by="SlabName"><span>Product - SlabName</span></th>
+                </tr>
+            </thead>
+            <tbody md-body>
+                <tr md-row ng-repeat="lead in returnLead.leads">
+                    <td md-cell>
+                        <md-checkbox ng-model="lead.Returned"
+                                     aria-label="returned"
+                                     ng-true-value="true"
+                                     ng-false-value="false"
+                                     ng-click="returnLead.toggleReturn($event,lead)"
+                                     class="md-hue-3">
+                        </md-checkbox>
+                    </td>
+                    <td md-cell><a ui-sref="home.lead({ID : lead.LeadId})">{{lead.LeadId}}</a></td>
+                    <td md-cell>
+                        {{lead.GeneratedDateTime | date : 'MMM d, y h:mm a'}}
+                    </td>
+                    <td md-cell>
+                        {{lead.TransferDateTime | date : 'MMM d, y h:mm a'}}
+                    </td>
+                    <td md-cell ng-if="isOrganization('Pioneer Web')">{{lead.Source}}</td>
+                    <td md-cell>{{lead.BuyerName}}</td>
+                    <td md-cell>{{lead.ProductName}}</td>
+                    <td md-cell>{{lead.BuyerRefId}}</td>                   
+                    <td md-cell>&pound {{ lead.Price }}</td>
+                    <td md-cell>{{lead.ActualPrice}}</td>    
+                    <td md-cell>{{lead.SlabName}}</td>                  
+                </tr>
+            </tbody>
+        </table>
+    </md-table-container>
+
+    <md-table-pagination md-limit="returnLead.limit" class="paginationSEC" md-limit-options="returnLead.limitOptions" md-page="returnLead.page" md-total="{{returnLead.leadCount}}" md-page-select="returnLead.pageSelect" md-boundary-links="true" md-on-paginate="returnLead.OnPaginate"></md-table-pagination>
+       
+</md-card>
